@@ -20,6 +20,8 @@ from pydantic import BaseModel
 from .exchange.bitget import Bitget, ExchangeError
 from .exchange.store import StoreBridge
 from .runner import make_runner
+from .exchange.signals import decimal as D, fmt
+from .execution import TradeIntent, oid
 
 DATA = Path(os.environ.get('ETH1003_DATA_DIR', str(Path.home() / '.eth1003'))).resolve()
 DATA.mkdir(parents=True, exist_ok=True)
@@ -106,6 +108,10 @@ class Toggle(BaseModel):
 
 
 class Adopt(BaseModel):
+    phrase: str
+
+
+class DemoTest(BaseModel):
     phrase: str
 
 
@@ -289,6 +295,46 @@ async def replay_backtest(request:Request):
         raise HTTPException(500,'凍結歷史重播未通過原結果核對，請勿將網站數字視為已驗證')
     return {'中文說明':'固定 1.35% 凍結歷史重播與原報告吻合；不是未來獲利預測。',
             '結果':json.loads(output)}
+
+
+@app.post('/api/demo-roundtrip')
+async def demo_roundtrip(request:Request,payload:DemoTest):
+    _auth(request);_armed()
+    bitget,runner=_connected()
+    if runtime['mode']!='demo':raise HTTPException(409,'完整送單測試只允許 Bitget 模擬帳戶')
+    if payload.phrase!='執行模擬下單測試':
+        raise HTTPException(400,'請輸入：執行模擬下單測試')
+    async with runtime['lock']:
+        runtime['automatic']=False
+        kind=await bitget.account_type()
+        contract=await bitget.instrument('ETHUSDT',kind)
+        quote=await bitget.ticker('ETHUSDT')
+        qty=max(D('0.01'),D(contract['min_qty']))
+        notional=qty*D(quote['ask'])
+        bar_ms=int(time.time()*1000)
+        intent=TradeIntent('ETHUSDT','long','market',fmt(notional),
+                oid('demo-roundtrip',secrets.token_hex(10)),bar_ms,entry=quote['ask'])
+        opened=await runner.execution.submit(intent,allow_post=True)
+        for _ in range(12):
+            if opened['state'] in {'open','partially_filled'}:break
+            if opened['state'] in {'canceled','cancelled','blocked','needs_reconcile','position_missing_after_fill'}:
+                return {'中文說明':'模擬單未確認成為可管理持倉，請到訂單頁核對。','進場':opened}
+            await asyncio.sleep(2)
+            opened=await runner.execution.reconcile(intent.client_order_id)
+        if opened['state']!='open':
+            return {'中文說明':'模擬進場尚未完全成交；未盲目送第二單，請到訂單頁取消或核對。',
+                    '進場':opened}
+        closed=await runner.execution.close(intent.client_order_id,int(time.time()*1000),
+                                            allow_post=True)
+        for _ in range(12):
+            await asyncio.sleep(2)
+            confirmed=await runner.execution.reconcile(closed['order']['id'])
+            if confirmed['state']=='filled':
+                entry_final=await runner.execution.reconcile(intent.client_order_id)
+                return {'中文說明':'模擬開倉、成交、只減倉平倉及交易所回讀已完成。',
+                        '進場':opened,'平倉':confirmed,'最終持倉':entry_final}
+        return {'中文說明':'模擬平倉已送出但尚未確認完全成交，請立即到訂單頁核對。',
+                '進場':opened,'平倉':closed}
 
 
 @app.get('/api/diagnostics')

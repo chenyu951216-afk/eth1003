@@ -12,7 +12,7 @@ Reference: `chenyu951216-afk/s300` main at `09656136af3ff06611f82be9a1693e3bc268
 
 ## Lifecycle behavior mapped from app/engine.py
 
-`oid` creates stable unique client OIDs; `filled` refuses missing fill quantities; `plan_price`/`covers` verify exchange-native TP/SL coverage. `submit` first persists an intent, then does preflight, account setup and placement; network or 5xx uncertainty never causes another financial POST. `reconcile` reads order detail, position, pending and plan state, distinguishes accepted/pending/partial/filled/canceled, and fails closed on inconsistent ownership. Management operations persist their OIDs before cancel/modify/reduce/plan POST and reconcile afterward. Full close and partial close use S300 `reduce`, not a fresh opposite-side entry.
+`oid` creates stable unique client OIDs; `filled` refuses missing fill quantities; `plan_price`/`covers` verify exchange-native TP/SL coverage. `submit` first persists an intent, then does preflight, account setup and placement; network or 5xx uncertainty never causes another financial POST. `reconcile` reads order detail, position and plan state, distinguishes accepted/pending/partial/filled/canceled, and fails closed on inconsistent ownership. Management operations persist their OIDs before cancel/modify/reduce/plan POST and reconcile afterward. Full close and partial close use S300 `reduce`, not a fresh opposite-side entry. Controlled existing-position adoption checks one ETH long, one-way, crossed, 150x, no unknown ETH orders/plans; it never adopts silently.
 
 ## Deliberate differences from S300
 

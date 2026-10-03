@@ -1,6 +1,7 @@
 import pytest
 from fastapi.testclient import TestClient
 from eth1003 import web
+from eth1003.runner import make_runner
 
 
 @pytest.fixture
@@ -44,6 +45,8 @@ def test_csrf_blocks_connection_and_live_arming(client):
     assert client.post('/api/arm',json={'phrase':'ENABLE DEMO TRADING'},headers=headers).status_code==400
     assert client.post('/api/arm',json={'phrase':'ENABLE LIVE TRADING'},headers=headers).status_code==200
     assert web.runtime['armed']
+    assert client.post('/api/demo-roundtrip',json={'phrase':'執行模擬下單測試'},
+                       headers=headers).status_code==409
     assert client.post('/api/disarm',headers=headers).json()['armed'] is False
 
 
@@ -61,3 +64,35 @@ def test_form_error_is_plain_chinese(client):
     assert response.status_code==422
     assert '表單資料不完整' in response.json()['error']
     assert '交易所金鑰' in response.json()['error']
+
+
+def test_demo_roundtrip_uses_only_demo_and_confirms_flat(client,tmp_path):
+    headers=logged_in(client)
+    class DemoExchange:
+        mode='demo'
+        def __init__(self):self.qty='0';self.calls=[]
+        async def account_type(self):return 'classic'
+        async def instrument(self,*args):return {'step':'0.01','tick':'0.01','min_qty':'0.01',
+             'min_value':'5','max_qty':'100','max_leverage':'150','status':'normal'}
+        async def ticker(self,*args):return {'ask':'2000','bid':'1999.99','mark':'2000','last':'2000','ts':1}
+        async def tier(self,*args):return 150
+        async def account_snapshot(self,*args):return {'balance':{'accountEquity':'100',
+            'available':'100','crossedMaxAvailable':'100'},'account':{},
+            'positions':[],'orders':[],'plans':[]}
+        async def prepare(self,o):self.calls.append('prepare')
+        async def place(self,o):self.calls.append('place');self.qty=o['qty'];return {'orderId':'o1','clientOid':o['id']}
+        async def detail(self,o):
+            if o.get('entry_oid'):return {'orderStatus':'filled','baseVolume':o['qty'],'orderId':'c1'}
+            return {'orderStatus':'filled','baseVolume':o['qty'],'orderId':'o1'}
+        async def positions(self,*args):
+            return [{'symbol':'ETHUSDT','holdSide':'long','total':self.qty}] if self.qty!='0' else []
+        async def plans(self,*args):return []
+        async def reduce(self,o,qty,cid):
+            self.calls.append('reduce');self.qty='0';return {'orderId':'c1','clientOid':cid}
+    exchange=DemoExchange()
+    web.runtime.update(mode='demo',bitget=exchange,runner=make_runner(exchange,tmp_path),
+                       armed=True,automatic=False)
+    response=client.post('/api/demo-roundtrip',json={'phrase':'執行模擬下單測試'},headers=headers)
+    assert response.status_code==200
+    assert exchange.calls==['prepare','place','reduce']
+    assert response.json()['最終持倉']['state']=='closed'
