@@ -22,6 +22,8 @@ from .exchange.store import StoreBridge
 from .runner import make_runner
 from .exchange.signals import decimal as D, fmt
 from .execution import TradeIntent, oid
+from .persistence import Journal, vault_key, save_credentials, load_credentials, atomic_write
+from decimal import ROUND_CEILING
 
 DATA = Path(os.environ.get('ETH1003_DATA_DIR', str(Path.home() / '.eth1003'))).resolve()
 DATA.mkdir(parents=True, exist_ok=True)
@@ -31,7 +33,8 @@ PROJECT = Path(__file__).parent.parent
 app = FastAPI(title='ETH1003', docs_url=None, redoc_url=None)
 runtime = {'mode':'demo','store':None,'bitget':None,'runner':None,'armed':False,
            'automatic':False,'task':None,'sessions':{},'last_result':None,
-           'events':deque(maxlen=100),'lock':asyncio.Lock()}
+           'events':deque(maxlen=100),'lock':asyncio.Lock(),'vault_key':None,'scope':None,
+           'history_task':None,'login_attempts':{}}
 ZH_ERRORS={
     'TARGET_LEVERAGE_NOT_SUPPORTED':'交易所合約或這筆金額的倉位階梯不支援 150 倍槓桿；本次沒有下單。',
     'EXISTING_EXCHANGE_POSITION':'Bitget 已有 ETH 持倉；為避免重複開倉，本次沒有下單。',
@@ -89,6 +92,12 @@ def present_result(value:dict):
 
 class Password(BaseModel):
     password: str
+    setup_token: str = ''
+
+
+class ChangePassword(BaseModel):
+    current_password: str
+    new_password: str
 
 
 class Connect(BaseModel):
@@ -97,6 +106,7 @@ class Connect(BaseModel):
     key: str
     secret: str
     passphrase: str
+    save: bool = True
 
 
 class Arm(BaseModel):
@@ -153,7 +163,10 @@ def _auth(request: Request):
 
 
 def _event(message: str, **data):
-    runtime['events'].appendleft({'at':time.time(),'message':message,'data':data})
+    item={'at':time.time(),'message':message,'data':data}
+    if runtime['store']:item=json.loads(runtime['store'].redact(json.dumps(item)))
+    Journal(DATA).event(item)
+    runtime['events'].appendleft(item)
 
 
 def _connected():
@@ -170,6 +183,23 @@ async def home():
     return FileResponse(STATIC / 'index.html')
 
 
+@app.get('/health')
+async def health():
+    return {'status':'ok','version':'0.2.0'}
+
+
+@app.middleware('http')
+async def security_headers(request, call_next):
+    response=await call_next(request)
+    response.headers['Cache-Control']='no-store'
+    response.headers['X-Content-Type-Options']='nosniff'
+    response.headers['X-Frame-Options']='DENY'
+    response.headers['Referrer-Policy']='no-referrer'
+    if os.environ.get('ETH1003_CLOUD')=='1':
+        response.headers['Strict-Transport-Security']='max-age=31536000'
+    return response
+
+
 @app.get('/daily.csv')
 async def daily_csv(request:Request):
     _auth(request)
@@ -180,6 +210,7 @@ async def daily_csv(request:Request):
 @app.get('/api/bootstrap')
 async def bootstrap(request:Request):
     return {'needs_setup':not AUTH.exists(),'local':bool(_local(request)),
+            'setup_token_required':os.environ.get('ETH1003_CLOUD')=='1',
             'authenticated':bool(request.cookies.get('eth1003_session') in runtime['sessions'])}
 
 
@@ -190,22 +221,42 @@ async def session(request:Request):
 
 @app.post('/api/setup')
 async def setup(request:Request,payload:Password):
-    if AUTH.exists() or not _local(request):raise HTTPException(403,'首次設定只可在本機完成')
+    if AUTH.exists():raise HTTPException(403,'管理密碼已設定，請登入')
+    if os.environ.get('ETH1003_CLOUD')=='1':
+        token=DATA/'setup-token'
+        if not token.exists() or not hmac.compare_digest(token.read_text().strip(),payload.setup_token):
+            raise HTTPException(403,'首次設定碼不正確；請使用部署完成時提供的設定碼')
+    elif not _local(request):raise HTTPException(403,'首次設定只可在本機完成')
     record=_password_record(payload.password)
     fd=os.open(AUTH,os.O_WRONLY|os.O_CREAT|os.O_EXCL,0o600)
     with os.fdopen(fd,'w',encoding='utf-8') as file:json.dump(record,file)
+    (DATA/'setup-token').unlink(missing_ok=True)
     return {'ok':True}
 
 
 @app.post('/api/login')
-async def login(payload:Password):
+async def login(request:Request,payload:Password):
+    now=time.time(); attempts=runtime['login_attempts']
+    recent=[x for x in attempts.get('global',[]) if now-x<60]
+    if len(recent)>=10:raise HTTPException(429,'登入嘗試過於頻繁，請一分鐘後再試')
+    attempts['global']=recent+[now]
     if not _check_password(payload.password):
         await asyncio.sleep(.5)
         raise HTTPException(401,'密碼錯誤')
+    key=vault_key(payload.password,json.loads(AUTH.read_text())['salt'])
+    async with runtime['lock']:
+        runtime['vault_key']=key
+        if runtime['runner'] is None:
+            try:
+                profile=load_credentials(DATA,key)
+                if profile:await _connect_profile(Connect(**profile))
+            except Exception:
+                _event('已保存的連接資料解鎖失敗，請重新填入；交易保持關閉')
     token=secrets.token_urlsafe(32);csrf=secrets.token_urlsafe(24)
     runtime['sessions'][token]={'expires':time.time()+12*3600,'csrf':csrf}
     response=JSONResponse({'ok':True,'csrf':csrf})
-    response.set_cookie('eth1003_session',token,httponly=True,samesite='strict',max_age=12*3600)
+    response.set_cookie('eth1003_session',token,httponly=True,samesite='strict',max_age=12*3600,
+                        secure=os.environ.get('ETH1003_CLOUD')=='1' or request.url.scheme=='https')
     return response
 
 
@@ -225,7 +276,9 @@ async def status(request:Request):
             'armed':runtime['armed'],'automatic':runtime['automatic'],
             'last_result':present_result(runtime['last_result']) if runtime['last_result'] else None,
             'orders':runner.execution.ledger.rows() if runner else [],
-            'events':list(runtime['events']),
+            'events':Journal(DATA).events(),
+            'credentials_saved':(DATA/'credentials.enc').exists(),
+            'records':Journal(DATA).summary(runtime['scope']) if runtime['scope'] else None,
             'strategy':{'symbol':'ETHUSDT','signal':'1h EMA12 > EMA720; long or flat',
                         'allocation_pct':1.35,'leverage':150,'qty_floor_eth':'0.01',
                         'fixed_tp':None,'fixed_sl':None,
@@ -240,17 +293,80 @@ async def connect(request:Request,payload:Connect):
     if not all([payload.key,payload.secret,payload.passphrase]):
         raise HTTPException(400,'請填完整 API 資料')
     async with runtime['lock']:
-        runtime['automatic']=False;runtime['armed']=False
-        if runtime['bitget']:await runtime['bitget'].close()
-        prefix='DEMO' if payload.mode=='demo' else 'BITGET'
-        env={f'ETH1003_{prefix}_{key}':value for key,value in [
-            ('KEY',payload.key),('SECRET',payload.secret),('PASSPHRASE',payload.passphrase)]}
-        store=StoreBridge(payload.account_type,env)
-        bitget=Bitget(store,payload.mode)
-        runtime.update(mode=payload.mode,store=store,bitget=bitget,
-                       runner=make_runner(bitget,DATA / payload.mode))
-        _event('帳戶資料僅保存在程式記憶體；交易仍關閉',mode=payload.mode)
+        if payload.save and not runtime['vault_key']:raise HTTPException(409,'請重新登入以解鎖密鑰保存')
+        if payload.save:save_credentials(DATA,runtime['vault_key'],payload.model_dump())
+        else:(DATA/'credentials.enc').unlink(missing_ok=True)
+        await _connect_profile(payload)
+        _event('帳戶已連接；'+('密鑰已加密保存' if payload.save else '僅本次使用')+'；交易仍關閉',mode=payload.mode)
     return {'ok':True,'mode':payload.mode,'armed':False}
+
+
+async def _connect_profile(payload):
+    runtime['automatic']=False;runtime['armed']=False
+    if runtime['bitget']:await runtime['bitget'].close()
+    prefix='DEMO' if payload.mode=='demo' else 'BITGET'
+    env={f'ETH1003_{prefix}_{key}':value for key,value in [
+        ('KEY',payload.key),('SECRET',payload.secret),('PASSPHRASE',payload.passphrase)]}
+    store=StoreBridge(payload.account_type,env);bitget=Bitget(store,payload.mode)
+    scope=payload.mode+'-'+hashlib.sha256(payload.key.encode()).hexdigest()[:20]
+    runtime.update(mode=payload.mode,store=store,bitget=bitget,scope=scope,
+                   runner=make_runner(bitget,DATA/scope))
+    if runtime['history_task'] is None or runtime['history_task'].done():
+        runtime['history_task']=asyncio.create_task(_history_loop())
+
+
+async def _sync_history():
+    bitget,runner=_connected();kind=await bitget.account_type();journal=Journal(DATA)
+    # Reuse S300's read-only position history; never derive profit from deposits/equity.
+    positions=await bitget.position_history('ETHUSDT',kind,100)
+    for row in positions:
+        identity=row.get('positionId')
+        if identity is None:raise ValueError('歷史持倉缺少唯一編號，未保存不明紀錄')
+        journal.put(runtime['scope'],'position',identity,row)
+    if kind=='classic':
+        for row in await bitget.recent_orders('ETHUSDT',kind,100):
+            if row.get('orderId'):journal.put(runtime['scope'],'order',row['orderId'],row)
+    snap=await bitget.account_snapshot('ETHUSDT',kind)
+    snap['balance'].pop('raw',None)
+    snap['observed_at_ms']=int(time.time()*1000)
+    journal.put(runtime['scope'],'snapshot',snap['observed_at_ms'],snap)
+    return journal.summary(runtime['scope'])
+
+
+async def _history_loop():
+    while True:
+        await asyncio.sleep(60)
+        if runtime['runner'] is None:continue
+        try:
+            async with runtime['lock']:await _sync_history()
+        except Exception as exc:_event('損益紀錄同步失敗，已保留原紀錄',error=human_error(exc))
+
+
+@app.post('/api/history-sync')
+async def history_sync(request:Request):
+    _auth(request)
+    async with runtime['lock']:return await _sync_history()
+
+
+@app.get('/api/records-export')
+async def records_export(request:Request):
+    _auth(request)
+    data={'records':Journal(DATA).summary(runtime['scope']) if runtime['scope'] else {},
+          'orders':runtime['runner'].execution.ledger.rows() if runtime['runner'] else [],
+          'events':Journal(DATA).events()}
+    return JSONResponse(data,headers={'Content-Disposition':'attachment; filename="eth1003-records.json"'})
+
+
+@app.post('/api/credentials-forget')
+async def credentials_forget(request:Request):
+    _auth(request)
+    async with runtime['lock']:
+        runtime['armed']=False;runtime['automatic']=False
+        if runtime['bitget']:await runtime['bitget'].close()
+        runtime.update(bitget=None,runner=None,store=None,scope=None)
+        (DATA/'credentials.enc').unlink(missing_ok=True)
+        _event('已移除保存的密鑰並中斷連接；交易紀錄保留')
+    return {'ok':True}
 
 
 @app.get('/api/public-contract')
@@ -297,32 +413,61 @@ async def replay_backtest(request:Request):
             '結果':json.loads(output)}
 
 
+async def _minimum_intent(bitget):
+    kind=await bitget.account_type()
+    contract=await bitget.instrument('ETHUSDT',kind)
+    quote=await bitget.ticker('ETHUSDT')
+    price=D(quote['ask']);step=D(contract['step'])
+    if price<=0 or step<=0:raise HTTPException(409,'交易所最低單規格或報價不正確')
+    required=max(D(contract['min_qty']),D(contract['min_value'])/price,step)
+    qty=(required/step).to_integral_value(rounding=ROUND_CEILING)*step
+    return TradeIntent('ETHUSDT','long','market',fmt(qty*price),
+        oid('minimum-test',secrets.token_hex(10)),int(time.time()*1000),entry=fmt(price))
+
+
+@app.post('/api/minimum-preview')
+async def minimum_preview(request:Request):
+    _auth(request);bitget,runner=_connected()
+    async with runtime['lock']:
+        intent=await _minimum_intent(bitget)
+        return {'中文說明':'只讀預覽，不送單。測試依交易所最小數量；不採策略 1.35% 部位尺寸。',
+                'result':await runner.execution.preview(intent)}
+
+
 @app.post('/api/demo-roundtrip')
 async def demo_roundtrip(request:Request,payload:DemoTest):
+    _auth(request)
+    if runtime['mode']!='demo':raise HTTPException(409,'此入口只允許 Bitget 模擬帳戶')
+    return await _minimum_roundtrip(request,payload,'執行模擬下單測試')
+
+
+@app.post('/api/minimum-roundtrip')
+async def minimum_roundtrip(request:Request,payload:DemoTest):
+    phrase='執行真實最小金額測試' if runtime['mode']=='live' else '執行模擬下單測試'
+    try:return await _minimum_roundtrip(request,payload,phrase)
+    finally:runtime['armed']=False;runtime['automatic']=False
+
+
+async def _minimum_roundtrip(request,payload,expected):
     _auth(request);_armed()
     bitget,runner=_connected()
-    if runtime['mode']!='demo':raise HTTPException(409,'完整送單測試只允許 Bitget 模擬帳戶')
-    if payload.phrase!='執行模擬下單測試':
-        raise HTTPException(400,'請輸入：執行模擬下單測試')
+    if payload.phrase!=expected:raise HTTPException(400,'請輸入：'+expected)
     async with runtime['lock']:
         runtime['automatic']=False
-        kind=await bitget.account_type()
-        contract=await bitget.instrument('ETHUSDT',kind)
-        quote=await bitget.ticker('ETHUSDT')
-        qty=max(D('0.01'),D(contract['min_qty']))
-        notional=qty*D(quote['ask'])
-        bar_ms=int(time.time()*1000)
-        intent=TradeIntent('ETHUSDT','long','market',fmt(notional),
-                oid('demo-roundtrip',secrets.token_hex(10)),bar_ms,entry=quote['ask'])
+        active=[x for x in runner.execution.ledger.rows() if x['kind'] in {'entry','close'}
+                and x['state'] not in {'closed','filled','blocked','rejected','canceled','cancelled'}]
+        if active:raise HTTPException(409,'尚有未結束或未確認的訂單，請先同步，不能重複測試')
+        intent=await _minimum_intent(bitget)
+        _event('使用者確認最小金額開平倉測試',mode=runtime['mode'],clientOid=intent.client_order_id)
         opened=await runner.execution.submit(intent,allow_post=True)
         for _ in range(12):
             if opened['state'] in {'open','partially_filled'}:break
             if opened['state'] in {'canceled','cancelled','blocked','needs_reconcile','position_missing_after_fill'}:
-                return {'中文說明':'模擬單未確認成為可管理持倉，請到訂單頁核對。','進場':opened}
+                return {'中文說明':'測試單未確認成為可管理持倉，請到訂單頁核對。','進場':opened}
             await asyncio.sleep(2)
             opened=await runner.execution.reconcile(intent.client_order_id)
         if opened['state']!='open':
-            return {'中文說明':'模擬進場尚未完全成交；未盲目送第二單，請到訂單頁取消或核對。',
+            return {'中文說明':'測試進場尚未完全成交；未盲目送第二單，請到訂單頁取消或核對。',
                     '進場':opened}
         closed=await runner.execution.close(intent.client_order_id,int(time.time()*1000),
                                             allow_post=True)
@@ -331,9 +476,9 @@ async def demo_roundtrip(request:Request,payload:DemoTest):
             confirmed=await runner.execution.reconcile(closed['order']['id'])
             if confirmed['state']=='filled':
                 entry_final=await runner.execution.reconcile(intent.client_order_id)
-                return {'中文說明':'模擬開倉、成交、只減倉平倉及交易所回讀已完成。',
+                return {'中文說明':'最小單開倉、成交、只減倉平倉及交易所回讀已完成。',
                         '進場':opened,'平倉':confirmed,'最終持倉':entry_final}
-        return {'中文說明':'模擬平倉已送出但尚未確認完全成交，請立即到訂單頁核對。',
+        return {'中文說明':'測試平倉已送出但尚未確認完全成交，請立即到訂單頁核對。',
                 '進場':opened,'平倉':closed}
 
 
@@ -395,8 +540,9 @@ async def preview(request:Request):
 @app.post('/api/arm')
 async def arm(request:Request,payload:Arm):
     _auth(request);_connected()
-    expected='ENABLE DEMO TRADING' if runtime['mode']=='demo' else 'ENABLE LIVE TRADING'
-    if payload.phrase != expected:raise HTTPException(400,f'請輸入 {expected}')
+    expected='啟用模擬交易' if runtime['mode']=='demo' else '啟用真實交易'
+    legacy='ENABLE DEMO TRADING' if runtime['mode']=='demo' else 'ENABLE LIVE TRADING'
+    if payload.phrase not in {expected,legacy}:raise HTTPException(400,f'請輸入 {expected}')
     runtime['armed']=True
     _event('已在網站啟用下單',mode=runtime['mode'])
     return {'armed':True,'mode':runtime['mode']}

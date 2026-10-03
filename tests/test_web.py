@@ -6,11 +6,13 @@ from eth1003.runner import make_runner
 
 @pytest.fixture
 def client(tmp_path,monkeypatch):
+    monkeypatch.delenv('ETH1003_CLOUD',raising=False)
     monkeypatch.setattr(web,'AUTH',tmp_path/'auth.json')
     monkeypatch.setattr(web,'DATA',tmp_path)
     monkeypatch.setattr(web,'_local',lambda request:True)
     web.runtime.update(mode='demo',store=None,bitget=None,runner=None,
-                       armed=False,automatic=False,last_result=None,sessions={})
+                       armed=False,automatic=False,last_result=None,sessions={},vault_key=None,
+                       scope=None,history_task=None,login_attempts={})
     with TestClient(web.app) as c:yield c
 
 
