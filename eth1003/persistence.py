@@ -59,8 +59,9 @@ class Journal:
 
     def rows(self, scope, kind):
         with self.db() as db:
+            suffix=' LIMIT 20' if kind=='snapshot' else ''
             return [json.loads(x[0]) for x in db.execute(
-                'SELECT payload FROM evidence WHERE scope=? AND kind=? ORDER BY at DESC LIMIT 2000',(scope,kind))]
+                'SELECT payload FROM evidence WHERE scope=? AND kind=? ORDER BY at DESC'+suffix,(scope,kind))]
 
     def summary(self, scope):
         rows=self.rows(scope,'position')

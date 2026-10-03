@@ -438,7 +438,8 @@ async def minimum_preview(request:Request):
 async def demo_roundtrip(request:Request,payload:DemoTest):
     _auth(request)
     if runtime['mode']!='demo':raise HTTPException(409,'此入口只允許 Bitget 模擬帳戶')
-    return await _minimum_roundtrip(request,payload,'執行模擬下單測試')
+    try:return await _minimum_roundtrip(request,payload,'執行模擬下單測試')
+    finally:runtime['armed']=False;runtime['automatic']=False
 
 
 @app.post('/api/minimum-roundtrip')
@@ -476,6 +477,9 @@ async def _minimum_roundtrip(request,payload,expected):
             confirmed=await runner.execution.reconcile(closed['order']['id'])
             if confirmed['state']=='filled':
                 entry_final=await runner.execution.reconcile(intent.client_order_id)
+                if entry_final['state']!='closed':
+                    return {'中文說明':'平倉委託已成交，但持倉尚未確認歸零；請立即核對，不算測試通過。',
+                            '進場':opened,'平倉':confirmed,'最終持倉':entry_final}
                 return {'中文說明':'最小單開倉、成交、只減倉平倉及交易所回讀已完成。',
                         '進場':opened,'平倉':confirmed,'最終持倉':entry_final}
         return {'中文說明':'測試平倉已送出但尚未確認完全成交，請立即到訂單頁核對。',
