@@ -12,7 +12,7 @@ def client(tmp_path,monkeypatch):
     monkeypatch.setattr(web,'_local',lambda request:True)
     web.runtime.update(mode='demo',store=None,bitget=None,runner=None,
                        armed=False,automatic=False,last_result=None,sessions={},vault_key=None,
-                       scope=None,history_task=None,login_attempts={})
+                       scope=None,history_task=None,login_attempts={},task=None,scanner={})
     with TestClient(web.app) as c:yield c
 
 

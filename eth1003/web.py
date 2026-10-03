@@ -9,6 +9,7 @@ import os
 import secrets
 import sys
 import time
+import httpx
 from collections import deque
 from pathlib import Path
 
@@ -21,7 +22,7 @@ from .exchange.bitget import Bitget, ExchangeError
 from .exchange.store import StoreBridge
 from .runner import make_runner
 from .exchange.signals import decimal as D, fmt
-from .execution import TradeIntent, oid
+from .execution import TradeIntent, oid, OrderBlocked
 from .persistence import Journal, vault_key, save_credentials, load_credentials, atomic_write
 from decimal import ROUND_CEILING
 
@@ -34,8 +35,9 @@ app = FastAPI(title='ETH1003', docs_url=None, redoc_url=None)
 runtime = {'mode':'demo','store':None,'bitget':None,'runner':None,'armed':False,
            'automatic':False,'task':None,'sessions':{},'last_result':None,
            'events':deque(maxlen=100),'lock':asyncio.Lock(),'vault_key':None,'scope':None,
-           'history_task':None,'login_attempts':{}}
+           'history_task':None,'login_attempts':{},'scanner':{}}
 ZH_ERRORS={
+    'TRADING_DISABLED_BEFORE_SEND':'送出前偵測到交易已關閉或帳戶已切換；本次未送單。',
     'TARGET_LEVERAGE_NOT_SUPPORTED':'交易所合約或這筆金額的倉位階梯不支援 150 倍槓桿；本次沒有下單。',
     'EXISTING_EXCHANGE_POSITION':'Bitget 已有 ETH 持倉；為避免重複開倉，本次沒有下單。',
     'EXISTING_EXCHANGE_ORDER':'Bitget 已有 ETH 委託；請先確認原單狀態。',
@@ -185,7 +187,7 @@ async def home():
 
 @app.get('/health')
 async def health():
-    return {'status':'ok','version':'0.2.0'}
+    return {'status':'ok','version':'0.3.0'}
 
 
 @app.middleware('http')
@@ -275,6 +277,7 @@ async def status(request:Request):
     return {'mode':runtime['mode'],'connected':runner is not None,
             'armed':runtime['armed'],'automatic':runtime['automatic'],
             'last_result':present_result(runtime['last_result']) if runtime['last_result'] else None,
+            'scanner':runtime['scanner'],
             'orders':runner.execution.ledger.rows() if runner else [],
             'events':Journal(DATA).events(),
             'credentials_saved':(DATA/'credentials.enc').exists(),
@@ -310,9 +313,17 @@ async def _connect_profile(payload):
     store=StoreBridge(payload.account_type,env);bitget=Bitget(store,payload.mode)
     scope=payload.mode+'-'+hashlib.sha256(payload.key.encode()).hexdigest()[:20]
     runtime.update(mode=payload.mode,store=store,bitget=bitget,scope=scope,
-                   runner=make_runner(bitget,DATA/scope))
+                   runner=make_runner(bitget,DATA/scope),last_result=None,
+                   scanner={'scans':0,'missed_hours':0,'error':None})
+    def guard():
+        if not runtime['armed'] or runtime['bitget'] is not bitget or (
+            getattr(runtime['runner'].execution,'automatic_call',False) and not runtime['automatic']):
+            raise OrderBlocked('TRADING_DISABLED_BEFORE_SEND')
+    runtime['runner'].execution.post_guard=guard
     if runtime['history_task'] is None or runtime['history_task'].done():
         runtime['history_task']=asyncio.create_task(_history_loop())
+    if runtime['task'] is None or runtime['task'].done():
+        runtime['task']=asyncio.create_task(_auto_loop())
 
 
 async def _sync_history():
@@ -454,6 +465,9 @@ async def _minimum_roundtrip(request,payload,expected):
     bitget,runner=_connected()
     if payload.phrase!=expected:raise HTTPException(400,'請輸入：'+expected)
     async with runtime['lock']:
+        _armed();bitget,runner=_connected()
+        current_phrase='執行真實最小金額測試' if runtime['mode']=='live' else '執行模擬下單測試'
+        if expected!=current_phrase:raise HTTPException(409,'帳戶模式已變更，請重新確認測試')
         runtime['automatic']=False
         active=[x for x in runner.execution.ledger.rows() if x['kind'] in {'entry','close'}
                 and x['state'] not in {'closed','filled','blocked','rejected','canceled','cancelled'}]
@@ -506,7 +520,7 @@ async def reconcile(request:Request):
     output=[]
     async with runtime['lock']:
         for row in sorted(runner.execution.ledger.rows(),key=lambda x:0 if x['kind']=='close' else 1):
-            if row['kind'] in {'entry','close'} and row['state'] not in {'blocked','rejected','canceled','cancelled','closed'}:
+            if row['kind'] in {'entry','close'} and row['state'] not in {'blocked','rejected','canceled','cancelled','closed'} and not (row['kind']=='close' and row['state']=='filled'):
                 try:output.append({'clientOid':row['oid'],'result':await runner.execution.reconcile(row['oid'])})
                 except Exception as exc:output.append({'clientOid':row['oid'],'error':human_error(exc)})
     return {'results':output}
@@ -563,27 +577,55 @@ async def disarm(request:Request):
 async def run(request:Request):
     _auth(request);_armed();_,runner=_connected()
     async with runtime['lock']:
+        _armed();_,runner=_connected()
         value=await runner.decide(allow_post=True)
         runtime['last_result']=value
         _event('手動執行一次策略決策',action=value.get('action'))
         return present_result(value)
 
 
+async def _scan_once():
+    async with runtime['lock']:
+        if runtime['runner'] is None:return
+        scan=runtime['scanner'];scan['started_at_ms']=int(time.time()*1000)
+        scan['scans']=scan.get('scans',0)+1
+        try:
+            runner=runtime['runner']
+            # Fetch signal before enabling any financial action; a feed outage is retriable.
+            sig,now_ms=await runner.signal()
+            previous=scan.get('decision_at_ms')
+            missed=max(0,(sig.decided_at_ms-previous)//3_600_000-1) if previous else 0
+            scan['missed_hours']=scan.get('missed_hours',0)+missed
+            if missed:_event('偵測到漏掃小時；只處理目前訊號，不補下歷史訂單',hours=missed)
+            scan['decision_at_ms']=sig.decided_at_ms
+            scan['observation_lag_ms']=now_ms-sig.decided_at_ms
+            # Recheck after awaits: an immediate stop may have arrived while fetching.
+            enabled=bool(runtime['automatic'] and runtime['armed'])
+            runner.execution.automatic_call=enabled
+            try:value=await runner.decide(allow_post=enabled,signal=sig,now_ms=now_ms)
+            finally:runner.execution.automatic_call=False
+            runtime['last_result']=value
+            scan.update(finished_at_ms=int(time.time()*1000),error=None,
+                        execution_enabled=enabled,action=value.get('action'))
+            if enabled and value.get('action') in {'enter','exit','blocked'}:
+                _event('自動策略決策',action=value.get('action'),
+                       reason=ZH_ERRORS.get(value.get('reason'),'已完成'))
+        except Exception as exc:
+            # Pure HTTP feed failures and failed exchange GETs can be retried.
+            retry_read=isinstance(exc,httpx.HTTPError) or (
+                isinstance(exc,ExchangeError) and not exc.uncertain and exc.code=='NETWORK')
+            if not retry_read:runtime['automatic']=False
+            message=human_error(exc)
+            if scan.get('error')!=message:
+                _event('掃描失敗；只讀網路錯誤稍後重試' if retry_read else
+                       '掃描異常，自動下單已停用；持續只讀檢查',error=message)
+            scan.update(error=message,failed_at_ms=int(time.time()*1000))
+
+
 async def _auto_loop():
     while True:
         await asyncio.sleep(30)
-        if not runtime['automatic'] or not runtime['armed'] or runtime['runner'] is None:
-            continue
-        try:
-            async with runtime['lock']:
-                value=await runtime['runner'].decide(allow_post=True)
-                runtime['last_result']=value
-                if value.get('action') in {'enter','exit','blocked'}:
-                    _event('自動策略決策',action=value.get('action'),
-                           reason=ZH_ERRORS.get(value.get('reason'),'已完成'))
-        except Exception as exc:
-            runtime['automatic']=False
-            _event('自動執行失敗，已停用',error=human_error(exc))
+        await _scan_once()
 
 
 @app.post('/api/automatic')
@@ -601,6 +643,7 @@ async def automatic(request:Request,payload:Toggle):
 async def close(request:Request,payload:Manage):
     _auth(request);_armed();_,runner=_connected()
     async with runtime['lock']:
+        _armed();_,runner=_connected()
         result=await runner.execution.close(payload.entry_oid,int(time.time()*1000),
                                             fraction=payload.fraction,allow_post=True)
         runtime['automatic']=False
@@ -612,6 +655,7 @@ async def close(request:Request,payload:Manage):
 async def cancel(request:Request,payload:Manage):
     _auth(request);_armed();_,runner=_connected()
     async with runtime['lock']:
+        _armed();_,runner=_connected()
         return await runner.execution.cancel(payload.entry_oid,int(time.time()*1000),allow_post=True)
 
 
@@ -620,6 +664,7 @@ async def modify(request:Request,payload:Manage):
     _auth(request);_armed();_,runner=_connected()
     if not payload.price or not payload.qty:raise HTTPException(400,'需填新價格及數量')
     async with runtime['lock']:
+        _armed();_,runner=_connected()
         return await runner.execution.modify_limit(payload.entry_oid,int(time.time()*1000),
                                                    payload.price,payload.qty,allow_post=True)
 
@@ -629,6 +674,7 @@ async def protection(request:Request,payload:Manage):
     _auth(request);_armed();_,runner=_connected()
     if not payload.price or payload.kind not in {'sl','tp'}:raise HTTPException(400,'需填 SL/TP 與價格')
     async with runtime['lock']:
+        _armed();_,runner=_connected()
         return await runner.execution.add_protection(payload.entry_oid,int(time.time()*1000),
                                                      payload.kind,payload.price,allow_post=True)
 
@@ -638,6 +684,7 @@ async def cancel_plan(request:Request,payload:Manage):
     _auth(request);_armed();_,runner=_connected()
     if not payload.plan_oid:raise HTTPException(400,'請填入本程式建立的止盈止損委託編號')
     async with runtime['lock']:
+        _armed();_,runner=_connected()
         return await runner.execution.cancel_protection(payload.plan_oid,
                     int(time.time()*1000),allow_post=True)
 

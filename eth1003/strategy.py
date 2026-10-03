@@ -44,7 +44,9 @@ def evaluate(closes: list[tuple[int, float]], now_ms: int) -> Signal:
     for _, close in closes[1:]:
         fast = af * close + (1 - af) * fast
         slow = aslow * close + (1 - aslow) * slow
-    return Signal(last, last + HOUR_MS, fast > slow, fast, slow,
+    # Frozen replay sets raw[:3600] = 0 and shifts raw by one bar.
+    # Exactly 3600 closed bars is therefore still the final warmup decision.
+    return Signal(last, last + HOUR_MS, len(closes) > 3600 and fast > slow, fast, slow,
                   float(closes[-1][1]), len(closes))
 
 

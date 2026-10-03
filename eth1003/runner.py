@@ -57,6 +57,13 @@ class Runner:
         if len(entry_rows) > 1:
             return result | {'action':'blocked','reason':'MULTIPLE_LOCAL_POSITIONS'}
         entry = entry_rows[0] if entry_rows else None
+        if not entry:
+            snapshot = await self.execution.b.account_snapshot('ETHUSDT')
+            for key, reason in [('positions','EXISTING_EXCHANGE_POSITION'),
+                                ('orders','EXISTING_EXCHANGE_ORDER'),
+                                ('plans','UNOWNED_EXCHANGE_PLAN')]:
+                if any(str(x.get('symbol','')).upper()=='ETHUSDT' for x in snapshot[key]):
+                    return result | {'action':'blocked','reason':reason}
         if signal.desired_long and entry:
             return result | {'action':'hold','entry_oid':entry['oid']}
         if not signal.desired_long and not entry:

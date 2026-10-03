@@ -103,6 +103,7 @@ class Ledger:
 class Execution:
     def __init__(self, bitget: Bitget, ledger: Ledger):
         self.b, self.ledger = bitget, ledger
+        self.post_guard = lambda: None
 
     async def preview(self, intent: TradeIntent) -> dict:
         if intent.symbol != 'ETHUSDT' or intent.side != 'long':
@@ -169,9 +170,11 @@ class Execution:
             return {'state': 'preview_only', 'order': order}
         if self.ledger.by_oid(intent.client_order_id):
             raise OrderBlocked('CLIENT_OID_ALREADY_USED')
+        self.post_guard()
         self.ledger.create(intent.client_order_id, intent.decision_bar_ms, 'entry', order)
         try:
             await self.b.prepare(order)  # S300 verifies one-way/cross/actual 150x by read-back.
+            self.post_guard()
             response = await self.b.place(order)
             if not isinstance(response, dict) or not (response.get('orderId') or response.get('clientOid')):
                 raise ValueError('PLACE_RESPONSE_MISSING_ORDER_ID_AND_CLIENT_OID')
@@ -179,6 +182,10 @@ class Execution:
             order['exchange_client_oid'] = str(response.get('clientOid') or order['id'])
             order['place_response'] = response
             self.ledger.update(order['id'], 'accepted', order)
+        except OrderBlocked as exc:
+            order['last_error']=str(exc)
+            self.ledger.update(order['id'],'blocked',order)
+            raise
         except ExchangeError as exc:
             order['last_error'] = exc.info()
             self.ledger.update(order['id'], 'uncertain' if exc.uncertain else 'blocked', order)
@@ -262,7 +269,11 @@ class Execution:
                 side = str(pos.get('holdSide') or pos.get('posSide') or '').lower()
                 if side and side != order['side']:
                     raise ValueError('POSITION_SIDE_MISMATCH')
-                if remaining > qty_filled:
+                # A close may still have zero filled while the owned long remains.
+                # Compare that position with the entry, never with close fills.
+                owner = self.ledger.by_oid(order.get('entry_oid')) if row['kind'] == 'close' else None
+                owned = D(owner['payload'].get('filled_qty') or '0') if owner else qty_filled
+                if remaining > owned:
                     raise ValueError('POSITION_EXCEEDS_TRACKED_FILL')
             if row['kind'] == 'close':
                 state = 'filled' if status == 'filled' and qty_filled >= D(order['qty']) else (
@@ -332,6 +343,7 @@ class Execution:
             raise OrderBlocked('PREVIOUS_CLOSE_NOT_CONFIRMED')
         if self.ledger.by_oid(cid):
             raise OrderBlocked('CLOSE_OID_ALREADY_USED')
+        self.post_guard()
         self.ledger.create(cid, bar_ms, 'close', close_order)
         try:
             response = await self.b.reduce(close_order, qty, cid)
@@ -360,6 +372,7 @@ class Execution:
                      'symbol':entry['symbol'],'target_order_id':entry.get('exchange_order_id')}
         if not allow_post:return {'state':'preview_only','order':operation}
         if self.ledger.by_oid(op_oid):raise OrderBlocked('CANCEL_OID_ALREADY_USED')
+        self.post_guard()
         self.ledger.create(op_oid, bar_ms, 'cancel', operation)
         try:
             response = await self.b.cancel(entry)
@@ -386,6 +399,7 @@ class Execution:
         operation={'id':op_oid,'entry_oid':entry_oid,'price':fmt(price),'qty':fmt(qty)}
         if not allow_post:return {'state':'preview_only','order':operation}
         if self.ledger.by_oid(op_oid):raise OrderBlocked('MODIFY_OID_ALREADY_USED')
+        self.post_guard()
         self.ledger.create(op_oid,bar_ms,'modify',operation)
         try:
             response=await self.b.modify_entry(entry,price,qty,op_oid)
@@ -416,6 +430,7 @@ class Execution:
         operation={'id':cid,'entry_oid':entry_oid,'kind':kind,'price':fmt(px),'qty':fmt(qty)}
         if not allow_post:return {'state':'preview_only','order':operation}
         if self.ledger.by_oid(cid):raise OrderBlocked('PLAN_OID_ALREADY_USED')
+        self.post_guard()
         self.ledger.create(cid,bar_ms,'plan_'+kind,operation)
         try:
             response=await self.b.add_plan(entry,kind,px,qty,cid,full=True)
@@ -450,6 +465,7 @@ class Execution:
                    'target_plan':matches[0]}
         if not allow_post:return {'state':'preview_only','order':operation}
         if self.ledger.by_oid(cid):raise OrderBlocked('PLAN_CANCEL_OID_ALREADY_USED')
+        self.post_guard()
         self.ledger.create(cid,bar_ms,'cancel_plan',operation)
         try:
             response=await self.b.cancel_plan(entry,matches[0])

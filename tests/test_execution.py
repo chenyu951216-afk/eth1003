@@ -320,7 +320,8 @@ async def test_close_no_owned_entry_blocked(tmp_path):
 def test_signal_uses_complete_contiguous_hours():
     prices=[(i*HOUR_MS,100+i*.01) for i in range(3600)]
     s=evaluate(prices,3600*HOUR_MS)
-    assert s.desired_long and s.bar_open_ms==3599*HOUR_MS
+    assert not s.desired_long and s.bar_open_ms==3599*HOUR_MS
+    assert evaluate(prices+[(3600*HOUR_MS,136)],3601*HOUR_MS).desired_long
     with pytest.raises(ValueError,match='MISSING_OR_DUPLICATE_HOUR'):
         evaluate(prices[:-2]+[prices[-1],prices[-1]],3600*HOUR_MS)
 
