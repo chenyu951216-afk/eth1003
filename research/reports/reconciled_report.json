@@ -1,0 +1,1022 @@
+{
+  "freqtrade_version": "2026.9",
+  "native_export": "backtest-result-2026-10-03_04-48-08.zip",
+  "source_market": "frozen Binance 2020-2026/09 ETHUSDT hourly trade/mark/funding",
+  "freqtrade_entry_exit_hours_match_all_frozen_signal_intervals": true,
+  "freqtrade_completed_trades": 121,
+  "freqtrade_actual_leverage_counts": {
+    "150.0": 82,
+    "100.0": 39
+  },
+  "freqtrade_exit_reasons": {
+    "exit_signal": 120,
+    "force_exit": 1
+  },
+  "freqtrade_native_no_deposit_no_slippage": {
+    "trading_net_usdt": 6293.352354249999,
+    "starting_balance_usdt": 100,
+    "final_balance_usdt": 6393.352354250001,
+    "win_count": 29,
+    "loss_count": 92,
+    "win_rate_pct": 23.96694214876033,
+    "avg_holding_days": 10.076446280991735,
+    "max_holding_days": 110.66666666666667,
+    "min_holding_hours": 1
+  },
+  "independent_cash_flow_account_replay_from_freqtrade_trade_intervals": {
+    "start_usdt": 100,
+    "150x_cross_proxy": true,
+    "adverse_slippage_each_fill": 0.0002,
+    "fee_each_fill": 0.0005,
+    "monthly_hypothetical_deposit_usdt": 300,
+    "monthly_deposit_count": 76,
+    "total_contributed_usdt": 22900.0,
+    "annual": {
+      "2020": {
+        "external_deposits_usdt": 2100,
+        "trading_net_usdt": 3092.9583135698085,
+        "end_equity_usdt": 5292.9583135698085,
+        "max_cash_flow_adjusted_drawdown_pct": 41.53106580361826,
+        "completed_trades": 13,
+        "winning_trades": 4,
+        "losing_trades": 9,
+        "win_rate_pct": 30.76923076923077,
+        "average_holding_days": 8.746794871794872,
+        "worst_closed_trade_net_usdt": -209.83874003673958,
+        "best_closed_trade_net_usdt": 663.6574760863841
+      },
+      "2021": {
+        "external_deposits_usdt": 3600,
+        "trading_net_usdt": 11598.527523218741,
+        "end_equity_usdt": 20491.48583678855,
+        "max_cash_flow_adjusted_drawdown_pct": 61.99778585950949,
+        "completed_trades": 24,
+        "winning_trades": 4,
+        "losing_trades": 20,
+        "win_rate_pct": 16.666666666666664,
+        "average_holding_days": 12.189236111111112,
+        "worst_closed_trade_net_usdt": -4358.159209768496,
+        "best_closed_trade_net_usdt": 12087.422976501704
+      },
+      "2022": {
+        "external_deposits_usdt": 3600,
+        "trading_net_usdt": -7806.505338747709,
+        "end_equity_usdt": 16284.98049804084,
+        "max_cash_flow_adjusted_drawdown_pct": 58.11455451962729,
+        "completed_trades": 18,
+        "winning_trades": 3,
+        "losing_trades": 15,
+        "win_rate_pct": 16.666666666666664,
+        "average_holding_days": 5.842592592592593,
+        "worst_closed_trade_net_usdt": -6812.883922180606,
+        "best_closed_trade_net_usdt": 7690.454139713458
+      },
+      "2023": {
+        "external_deposits_usdt": 3600,
+        "trading_net_usdt": 17986.373457458914,
+        "end_equity_usdt": 37871.353955499755,
+        "max_cash_flow_adjusted_drawdown_pct": 49.05014860838289,
+        "completed_trades": 18,
+        "winning_trades": 5,
+        "losing_trades": 13,
+        "win_rate_pct": 27.77777777777778,
+        "average_holding_days": 8.092592592592593,
+        "worst_closed_trade_net_usdt": -2683.0384812713814,
+        "best_closed_trade_net_usdt": 7264.87907189046
+      },
+      "2024": {
+        "external_deposits_usdt": 3600,
+        "trading_net_usdt": 17669.36729306694,
+        "end_equity_usdt": 59140.7212485667,
+        "max_cash_flow_adjusted_drawdown_pct": 60.29262318457897,
+        "completed_trades": 18,
+        "winning_trades": 5,
+        "losing_trades": 13,
+        "win_rate_pct": 27.77777777777778,
+        "average_holding_days": 13.817129629629628,
+        "worst_closed_trade_net_usdt": -8426.658554686885,
+        "best_closed_trade_net_usdt": 28080.042565978896
+      },
+      "2025": {
+        "external_deposits_usdt": 3600,
+        "trading_net_usdt": 36024.73667149503,
+        "end_equity_usdt": 98765.45792006173,
+        "max_cash_flow_adjusted_drawdown_pct": 45.452015260935255,
+        "completed_trades": 16,
+        "winning_trades": 2,
+        "losing_trades": 14,
+        "win_rate_pct": 12.5,
+        "average_holding_days": 9.859375,
+        "worst_closed_trade_net_usdt": -21094.388517454467,
+        "best_closed_trade_net_usdt": 81286.90516402942
+      },
+      "2026": {
+        "external_deposits_usdt": 2700,
+        "trading_net_usdt": 56665.357652418475,
+        "end_equity_usdt": 158130.8155724802,
+        "max_cash_flow_adjusted_drawdown_pct": 40.183041542436726,
+        "completed_trades": 14,
+        "winning_trades": 6,
+        "losing_trades": 8,
+        "win_rate_pct": 42.857142857142854,
+        "average_holding_days": 11.12202380952381,
+        "worst_closed_trade_net_usdt": -7944.472954962375,
+        "best_closed_trade_net_usdt": 73645.5941106182
+      }
+    },
+    "statistics": {
+      "ending_usdt": 158130.8155724802,
+      "external_deposits_usdt": 22800.0,
+      "deposit_count": 76,
+      "trading_net_usdt": 135230.8155724802,
+      "gross_price_pnl_usdt": 173985.60807946045,
+      "fees_usdt": 9191.759785118093,
+      "funding_usdt": -29563.032721862313,
+      "completed_trades": 121,
+      "wins": 29,
+      "losses": 92,
+      "win_rate_pct": 23.96694214876033,
+      "best_closed_trade_net_usdt": 81286.90516402942,
+      "worst_closed_trade_net_usdt": -21094.388517454467,
+      "first_closed_trade_net_usdt": 2.984821932444037,
+      "median_closed_trade_net_usdt": -783.0492553772585,
+      "average_winning_trade_net_usdt": 12261.155561296719,
+      "average_losing_trade_net_usdt": -2395.0293011426616,
+      "average_payoff_ratio": 5.11941776889617,
+      "profit_factor": 1.6137295141085757,
+      "longest_losing_streak": 9,
+      "first_entry_notional_usdt": 201.67672728,
+      "trade_records": [
+        {
+          "entry_hour_utc": "2020-05-30T01:00:00+00:00",
+          "exit_hour_utc": "2020-06-15T10:00:00+00:00",
+          "duration_hours": 393,
+          "net_usdt": 2.984821932444037,
+          "entry_notional_usdt": 201.67672728
+        },
+        {
+          "entry_hour_utc": "2020-06-15T20:00:00+00:00",
+          "exit_hour_utc": "2020-06-20T18:00:00+00:00",
+          "duration_hours": 118,
+          "net_usdt": -20.845417999770028,
+          "entry_notional_usdt": 815.6765026800001
+        },
+        {
+          "entry_hour_utc": "2020-06-21T00:00:00+00:00",
+          "exit_hour_utc": "2020-06-26T18:00:00+00:00",
+          "duration_hours": 138,
+          "net_usdt": 0.40030044392013053,
+          "entry_notional_usdt": 773.6338958399999
+        },
+        {
+          "entry_hour_utc": "2020-07-01T20:00:00+00:00",
+          "exit_hour_utc": "2020-07-02T12:00:00+00:00",
+          "duration_hours": 16,
+          "net_usdt": -20.163264866969907,
+          "entry_notional_usdt": 1380.12206922
+        },
+        {
+          "entry_hour_utc": "2020-07-02T14:00:00+00:00",
+          "exit_hour_utc": "2020-07-02T16:00:00+00:00",
+          "duration_hours": 2,
+          "net_usdt": -33.53213346483005,
+          "entry_notional_usdt": 1339.64717586
+        },
+        {
+          "entry_hour_utc": "2020-07-06T08:00:00+00:00",
+          "exit_hour_utc": "2020-07-16T13:00:00+00:00",
+          "duration_hours": 245,
+          "net_usdt": -10.270393391075983,
+          "entry_notional_usdt": 1271.56066128
+        },
+        {
+          "entry_hour_utc": "2020-07-18T15:00:00+00:00",
+          "exit_hour_utc": "2020-09-04T04:00:00+00:00",
+          "duration_hours": 1141,
+          "net_usdt": 663.6574760863841,
+          "entry_notional_usdt": 1252.5339566999999
+        },
+        {
+          "entry_hour_utc": "2020-09-13T00:00:00+00:00",
+          "exit_hour_utc": "2020-09-13T13:00:00+00:00",
+          "duration_hours": 13,
+          "net_usdt": -209.83874003673958,
+          "entry_notional_usdt": 3810.6733822799997
+        },
+        {
+          "entry_hour_utc": "2020-09-17T12:00:00+00:00",
+          "exit_hour_utc": "2020-09-20T15:00:00+00:00",
+          "duration_hours": 75,
+          "net_usdt": -103.28060255603984,
+          "entry_notional_usdt": 3384.80562576
+        },
+        {
+          "entry_hour_utc": "2020-10-01T13:00:00+00:00",
+          "exit_hour_utc": "2020-10-01T16:00:00+00:00",
+          "duration_hours": 3,
+          "net_usdt": -74.25454022343011,
+          "entry_notional_usdt": 3784.1838854400003
+        },
+        {
+          "entry_hour_utc": "2020-10-09T17:00:00+00:00",
+          "exit_hour_utc": "2020-10-30T11:00:00+00:00",
+          "duration_hours": 498,
+          "net_usdt": 92.59169547405227,
+          "entry_notional_usdt": 3634.54456356
+        },
+        {
+          "entry_hour_utc": "2020-10-30T22:00:00+00:00",
+          "exit_hour_utc": "2020-11-03T04:00:00+00:00",
+          "duration_hours": 78,
+          "net_usdt": -107.75320246079997,
+          "entry_notional_usdt": 3821.4646401000005
+        },
+        {
+          "entry_hour_utc": "2020-11-04T00:00:00+00:00",
+          "exit_hour_utc": "2020-11-04T09:00:00+00:00",
+          "duration_hours": 9,
+          "net_usdt": -91.33424962940049,
+          "entry_notional_usdt": 4207.95382248
+        },
+        {
+          "entry_hour_utc": "2020-11-04T17:00:00+00:00",
+          "exit_hour_utc": "2021-02-23T09:00:00+00:00",
+          "duration_hours": 2656,
+          "net_usdt": 7643.672097548026,
+          "entry_notional_usdt": 4023.6341659199998
+        },
+        {
+          "entry_hour_utc": "2021-02-24T13:00:00+00:00",
+          "exit_hour_utc": "2021-02-24T14:00:00+00:00",
+          "duration_hours": 1,
+          "net_usdt": -646.6685658959475,
+          "entry_notional_usdt": 21319.32431226
+        },
+        {
+          "entry_hour_utc": "2021-02-24T16:00:00+00:00",
+          "exit_hour_utc": "2021-02-24T20:00:00+00:00",
+          "duration_hours": 4,
+          "net_usdt": -754.3620948054781,
+          "entry_notional_usdt": 20015.44548864
+        },
+        {
+          "entry_hour_utc": "2021-03-03T18:00:00+00:00",
+          "exit_hour_utc": "2021-03-04T00:00:00+00:00",
+          "duration_hours": 6,
+          "net_usdt": -709.7091999771993,
+          "entry_notional_usdt": 19094.232082799997
+        },
+        {
+          "entry_hour_utc": "2021-03-04T02:00:00+00:00",
+          "exit_hour_utc": "2021-03-04T04:00:00+00:00",
+          "duration_hours": 2,
+          "net_usdt": -671.5862672937575,
+          "entry_notional_usdt": 17647.628019839998
+        },
+        {
+          "entry_hour_utc": "2021-03-06T21:00:00+00:00",
+          "exit_hour_utc": "2021-03-23T01:00:00+00:00",
+          "duration_hours": 388,
+          "net_usdt": -160.96733827903324,
+          "entry_notional_usdt": 16300.46424096
+        },
+        {
+          "entry_hour_utc": "2021-03-27T23:00:00+00:00",
+          "exit_hour_utc": "2021-03-28T15:00:00+00:00",
+          "duration_hours": 16,
+          "net_usdt": -252.22496432860004,
+          "entry_notional_usdt": 15958.886139
+        },
+        {
+          "entry_hour_utc": "2021-03-29T10:00:00+00:00",
+          "exit_hour_utc": "2021-05-19T05:00:00+00:00",
+          "duration_hours": 1219,
+          "net_usdt": 8473.795861725754,
+          "entry_notional_usdt": 15454.836749279999
+        },
+        {
+          "entry_hour_utc": "2021-06-03T12:00:00+00:00",
+          "exit_hour_utc": "2021-06-03T14:00:00+00:00",
+          "duration_hours": 2,
+          "net_usdt": -397.8564793500401,
+          "entry_notional_usdt": 34436.15345352
+        },
+        {
+          "entry_hour_utc": "2021-06-03T17:00:00+00:00",
+          "exit_hour_utc": "2021-06-03T20:00:00+00:00",
+          "duration_hours": 3,
+          "net_usdt": -510.99472701356996,
+          "entry_notional_usdt": 33638.11597794
+        },
+        {
+          "entry_hour_utc": "2021-06-03T21:00:00+00:00",
+          "exit_hour_utc": "2021-06-04T03:00:00+00:00",
+          "duration_hours": 6,
+          "net_usdt": -1087.2516129861551,
+          "entry_notional_usdt": 32591.32256112
+        },
+        {
+          "entry_hour_utc": "2021-06-07T13:00:00+00:00",
+          "exit_hour_utc": "2021-06-07T17:00:00+00:00",
+          "duration_hours": 4,
+          "net_usdt": -714.1704255701969,
+          "entry_notional_usdt": 30397.271038559997
+        },
+        {
+          "entry_hour_utc": "2021-07-04T09:00:00+00:00",
+          "exit_hour_utc": "2021-07-05T15:00:00+00:00",
+          "duration_hours": 30,
+          "net_usdt": -1364.2814040612143,
+          "entry_notional_usdt": 29560.41330048
+        },
+        {
+          "entry_hour_utc": "2021-07-06T07:00:00+00:00",
+          "exit_hour_utc": "2021-07-08T08:00:00+00:00",
+          "duration_hours": 49,
+          "net_usdt": -1630.7833044449092,
+          "entry_notional_usdt": 26779.409811
+        },
+        {
+          "entry_hour_utc": "2021-07-24T02:00:00+00:00",
+          "exit_hour_utc": "2021-09-10T20:00:00+00:00",
+          "duration_hours": 1170,
+          "net_usdt": 12087.422976501704,
+          "entry_notional_usdt": 23487.709002479998
+        },
+        {
+          "entry_hour_utc": "2021-09-12T11:00:00+00:00",
+          "exit_hour_utc": "2021-09-13T05:00:00+00:00",
+          "duration_hours": 18,
+          "net_usdt": -2206.3088759203138,
+          "entry_notional_usdt": 49160.32349868
+        },
+        {
+          "entry_hour_utc": "2021-09-14T17:00:00+00:00",
+          "exit_hour_utc": "2021-09-19T18:00:00+00:00",
+          "duration_hours": 121,
+          "net_usdt": -494.4408389660969,
+          "entry_notional_usdt": 44714.3680854
+        },
+        {
+          "entry_hour_utc": "2021-10-01T17:00:00+00:00",
+          "exit_hour_utc": "2021-11-16T13:00:00+00:00",
+          "duration_hours": 1100,
+          "net_usdt": 11013.35646249491,
+          "entry_notional_usdt": 44319.74747706001
+        },
+        {
+          "entry_hour_utc": "2021-11-20T21:00:00+00:00",
+          "exit_hour_utc": "2021-11-22T02:00:00+00:00",
+          "duration_hours": 29,
+          "net_usdt": -3079.0216712982224,
+          "entry_notional_usdt": 67222.47930749999
+        },
+        {
+          "entry_hour_utc": "2021-11-24T00:00:00+00:00",
+          "exit_hour_utc": "2021-11-24T04:00:00+00:00",
+          "duration_hours": 4,
+          "net_usdt": -1364.8855866047973,
+          "entry_notional_usdt": 60964.88493887999
+        },
+        {
+          "entry_hour_utc": "2021-11-25T11:00:00+00:00",
+          "exit_hour_utc": "2021-11-26T11:00:00+00:00",
+          "duration_hours": 24,
+          "net_usdt": -4358.159209768496,
+          "entry_notional_usdt": 58205.12029632
+        },
+        {
+          "entry_hour_utc": "2021-11-29T08:00:00+00:00",
+          "exit_hour_utc": "2021-12-03T23:00:00+00:00",
+          "duration_hours": 111,
+          "net_usdt": -1922.8602538038567,
+          "entry_notional_usdt": 49378.563738
+        },
+        {
+          "entry_hour_utc": "2021-12-07T07:00:00+00:00",
+          "exit_hour_utc": "2021-12-09T16:00:00+00:00",
+          "duration_hours": 57,
+          "net_usdt": -1799.706990889639,
+          "entry_notional_usdt": 46092.61978062
+        },
+        {
+          "entry_hour_utc": "2021-12-24T19:00:00+00:00",
+          "exit_hour_utc": "2021-12-24T20:00:00+00:00",
+          "duration_hours": 1,
+          "net_usdt": -488.8834995320797,
+          "entry_notional_usdt": 42482.39558016
+        },
+        {
+          "entry_hour_utc": "2022-02-05T01:00:00+00:00",
+          "exit_hour_utc": "2022-02-12T01:00:00+00:00",
+          "duration_hours": 168,
+          "net_usdt": -830.5402935262662,
+          "entry_notional_usdt": 42693.73623984
+        },
+        {
+          "entry_hour_utc": "2022-02-15T06:00:00+00:00",
+          "exit_hour_utc": "2022-02-17T20:00:00+00:00",
+          "duration_hours": 62,
+          "net_usdt": -1496.8269618730642,
+          "entry_notional_usdt": 41016.62878542
+        },
+        {
+          "entry_hour_utc": "2022-03-01T02:00:00+00:00",
+          "exit_hour_utc": "2022-03-03T22:00:00+00:00",
+          "duration_hours": 68,
+          "net_usdt": -1580.7192663609883,
+          "entry_notional_usdt": 38603.06886996
+        },
+        {
+          "entry_hour_utc": "2022-03-16T22:00:00+00:00",
+          "exit_hour_utc": "2022-04-11T12:00:00+00:00",
+          "duration_hours": 614,
+          "net_usdt": 3333.6334022451388,
+          "entry_notional_usdt": 35378.202925740006
+        },
+        {
+          "entry_hour_utc": "2022-04-20T12:00:00+00:00",
+          "exit_hour_utc": "2022-04-20T17:00:00+00:00",
+          "duration_hours": 5,
+          "net_usdt": -1020.5113489010365,
+          "entry_notional_usdt": 42739.90307136
+        },
+        {
+          "entry_hour_utc": "2022-04-21T12:00:00+00:00",
+          "exit_hour_utc": "2022-04-21T19:00:00+00:00",
+          "duration_hours": 7,
+          "net_usdt": -1246.5788130701023,
+          "entry_notional_usdt": 40693.34624184
+        },
+        {
+          "entry_hour_utc": "2022-07-15T21:00:00+00:00",
+          "exit_hour_utc": "2022-07-16T05:00:00+00:00",
+          "duration_hours": 8,
+          "net_usdt": -1174.5304885220137,
+          "entry_notional_usdt": 39990.144629639995
+        },
+        {
+          "entry_hour_utc": "2022-07-16T17:00:00+00:00",
+          "exit_hour_utc": "2022-08-19T22:00:00+00:00",
+          "duration_hours": 821,
+          "net_usdt": 7690.454139713458,
+          "entry_notional_usdt": 37614.67663104
+        },
+        {
+          "entry_hour_utc": "2022-08-25T09:00:00+00:00",
+          "exit_hour_utc": "2022-08-26T07:00:00+00:00",
+          "duration_hours": 22,
+          "net_usdt": -1628.4523303695805,
+          "entry_notional_usdt": 53779.85301984
+        },
+        {
+          "entry_hour_utc": "2022-09-06T04:00:00+00:00",
+          "exit_hour_utc": "2022-09-06T22:00:00+00:00",
+          "duration_hours": 18,
+          "net_usdt": -1799.6923918435498,
+          "entry_notional_usdt": 51093.60907848
+        },
+        {
+          "entry_hour_utc": "2022-09-08T06:00:00+00:00",
+          "exit_hour_utc": "2022-09-13T19:00:00+00:00",
+          "duration_hours": 133,
+          "net_usdt": -1546.8674214495065,
+          "entry_notional_usdt": 47451.18523938
+        },
+        {
+          "entry_hour_utc": "2022-10-24T01:00:00+00:00",
+          "exit_hour_utc": "2022-11-08T16:00:00+00:00",
+          "duration_hours": 375,
+          "net_usdt": 3200.408010755101,
+          "entry_notional_usdt": 44932.42708848
+        },
+        {
+          "entry_hour_utc": "2022-11-08T17:00:00+00:00",
+          "exit_hour_utc": "2022-11-08T19:00:00+00:00",
+          "duration_hours": 2,
+          "net_usdt": -6812.883922180606,
+          "entry_notional_usdt": 52009.4083017
+        },
+        {
+          "entry_hour_utc": "2022-11-30T20:00:00+00:00",
+          "exit_hour_utc": "2022-12-03T21:00:00+00:00",
+          "duration_hours": 73,
+          "net_usdt": -726.9955805273623,
+          "entry_notional_usdt": 38227.47926706001
+        },
+        {
+          "entry_hour_utc": "2022-12-05T00:00:00+00:00",
+          "exit_hour_utc": "2022-12-05T21:00:00+00:00",
+          "duration_hours": 21,
+          "net_usdt": -719.8244647761792,
+          "entry_notional_usdt": 37361.80306644
+        },
+        {
+          "entry_hour_utc": "2022-12-09T00:00:00+00:00",
+          "exit_hour_utc": "2022-12-10T03:00:00+00:00",
+          "duration_hours": 27,
+          "net_usdt": -520.8675898918823,
+          "entry_notional_usdt": 35903.3252292
+        },
+        {
+          "entry_hour_utc": "2022-12-10T16:00:00+00:00",
+          "exit_hour_utc": "2022-12-12T01:00:00+00:00",
+          "duration_hours": 33,
+          "net_usdt": -697.9387465370735,
+          "entry_notional_usdt": 34846.301766779994
+        },
+        {
+          "entry_hour_utc": "2022-12-13T05:00:00+00:00",
+          "exit_hour_utc": "2022-12-16T00:00:00+00:00",
+          "duration_hours": 67,
+          "net_usdt": -227.7712716321636,
+          "entry_notional_usdt": 33434.31992688
+        },
+        {
+          "entry_hour_utc": "2023-01-04T05:00:00+00:00",
+          "exit_hour_utc": "2023-02-10T06:00:00+00:00",
+          "duration_hours": 889,
+          "net_usdt": 7264.87907189046,
+          "entry_notional_usdt": 33575.657788799996
+        },
+        {
+          "entry_hour_utc": "2023-02-15T12:00:00+00:00",
+          "exit_hour_utc": "2023-02-25T06:00:00+00:00",
+          "duration_hours": 234,
+          "net_usdt": 526.3584819536132,
+          "entry_notional_usdt": 48902.87681963999
+        },
+        {
+          "entry_hour_utc": "2023-02-26T19:00:00+00:00",
+          "exit_hour_utc": "2023-03-03T04:00:00+00:00",
+          "duration_hours": 105,
+          "net_usdt": -2113.499697870638,
+          "entry_notional_usdt": 49961.214744900004
+        },
+        {
+          "entry_hour_utc": "2023-03-13T06:00:00+00:00",
+          "exit_hour_utc": "2023-04-21T20:00:00+00:00",
+          "duration_hours": 950,
+          "net_usdt": 6553.910632606823,
+          "entry_notional_usdt": 46287.5676624
+        },
+        {
+          "entry_hour_utc": "2023-04-26T13:00:00+00:00",
+          "exit_hour_utc": "2023-04-27T13:00:00+00:00",
+          "duration_hours": 24,
+          "net_usdt": -2683.0384812713814,
+          "entry_notional_usdt": 60163.81655724
+        },
+        {
+          "entry_hour_utc": "2023-04-27T16:00:00+00:00",
+          "exit_hour_utc": "2023-05-01T02:00:00+00:00",
+          "duration_hours": 82,
+          "net_usdt": -1955.723724584689,
+          "entry_notional_usdt": 54725.166244680004
+        },
+        {
+          "entry_hour_utc": "2023-05-04T02:00:00+00:00",
+          "exit_hour_utc": "2023-05-04T22:00:00+00:00",
+          "duration_hours": 20,
+          "net_usdt": -767.926501778802,
+          "entry_notional_usdt": 51388.26519792
+        },
+        {
+          "entry_hour_utc": "2023-05-05T03:00:00+00:00",
+          "exit_hour_utc": "2023-05-08T03:00:00+00:00",
+          "duration_hours": 72,
+          "net_usdt": -1126.715893584749,
+          "entry_notional_usdt": 49821.9624
+        },
+        {
+          "entry_hour_utc": "2023-05-23T09:00:00+00:00",
+          "exit_hour_utc": "2023-05-24T05:00:00+00:00",
+          "duration_hours": 20,
+          "net_usdt": -820.1612035405363,
+          "entry_notional_usdt": 47547.417582
+        },
+        {
+          "entry_hour_utc": "2023-05-28T04:00:00+00:00",
+          "exit_hour_utc": "2023-06-05T17:00:00+00:00",
+          "duration_hours": 205,
+          "net_usdt": -1067.079654902073,
+          "entry_notional_usdt": 45889.176
+        },
+        {
+          "entry_hour_utc": "2023-06-06T22:00:00+00:00",
+          "exit_hour_utc": "2023-06-07T19:00:00+00:00",
+          "duration_hours": 21,
+          "net_usdt": -783.0492553772585,
+          "entry_notional_usdt": 44334.475122
+        },
+        {
+          "entry_hour_utc": "2023-06-21T04:00:00+00:00",
+          "exit_hour_utc": "2023-07-07T08:00:00+00:00",
+          "duration_hours": 388,
+          "net_usdt": 818.0576870363678,
+          "entry_notional_usdt": 42745.079306399995
+        },
+        {
+          "entry_hour_utc": "2023-07-07T14:00:00+00:00",
+          "exit_hour_utc": "2023-07-08T13:00:00+00:00",
+          "duration_hours": 23,
+          "net_usdt": -467.2334190946795,
+          "entry_notional_usdt": 44999.40588156
+        },
+        {
+          "entry_hour_utc": "2023-07-09T04:00:00+00:00",
+          "exit_hour_utc": "2023-07-10T02:00:00+00:00",
+          "duration_hours": 22,
+          "net_usdt": -423.78430325191823,
+          "entry_notional_usdt": 44070.012240000004
+        },
+        {
+          "entry_hour_utc": "2023-07-10T03:00:00+00:00",
+          "exit_hour_utc": "2023-07-10T05:00:00+00:00",
+          "duration_hours": 2,
+          "net_usdt": -166.05444218551762,
+          "entry_notional_usdt": 43203.77492718
+        },
+        {
+          "entry_hour_utc": "2023-07-10T16:00:00+00:00",
+          "exit_hour_utc": "2023-07-22T19:00:00+00:00",
+          "duration_hours": 291,
+          "net_usdt": 141.25542033483998,
+          "entry_notional_usdt": 42869.201325840004
+        },
+        {
+          "entry_hour_utc": "2023-09-28T18:00:00+00:00",
+          "exit_hour_utc": "2023-10-04T14:00:00+00:00",
+          "duration_hours": 140,
+          "net_usdt": -764.1113756544934,
+          "entry_notional_usdt": 44364.872800319994
+        },
+        {
+          "entry_hour_utc": "2023-10-20T19:00:00+00:00",
+          "exit_hour_utc": "2023-10-21T03:00:00+00:00",
+          "duration_hours": 8,
+          "net_usdt": -355.9397917938514,
+          "entry_notional_usdt": 43435.2963222
+        },
+        {
+          "entry_hour_utc": "2023-10-21T09:00:00+00:00",
+          "exit_hour_utc": "2024-01-03T21:00:00+00:00",
+          "duration_hours": 1788,
+          "net_usdt": 14199.623556957873,
+          "entry_notional_usdt": 42704.465185199995
+        },
+        {
+          "entry_hour_utc": "2024-01-04T18:00:00+00:00",
+          "exit_hour_utc": "2024-01-05T12:00:00+00:00",
+          "duration_hours": 18,
+          "net_usdt": -1177.3641260989864,
+          "entry_notional_usdt": 73272.871644
+        },
+        {
+          "entry_hour_utc": "2024-01-08T18:00:00+00:00",
+          "exit_hour_utc": "2024-01-22T16:00:00+00:00",
+          "duration_hours": 334,
+          "net_usdt": 1828.6966760294295,
+          "entry_notional_usdt": 70899.37533966001
+        },
+        {
+          "entry_hour_utc": "2024-01-30T21:00:00+00:00",
+          "exit_hour_utc": "2024-01-31T07:00:00+00:00",
+          "duration_hours": 10,
+          "net_usdt": -1412.8181840330387,
+          "entry_notional_usdt": 74611.97861184001
+        },
+        {
+          "entry_hour_utc": "2024-02-06T17:00:00+00:00",
+          "exit_hour_utc": "2024-03-19T05:00:00+00:00",
+          "duration_hours": 996,
+          "net_usdt": 28080.042565978896,
+          "entry_notional_usdt": 72347.8126692
+        },
+        {
+          "entry_hour_utc": "2024-03-21T03:00:00+00:00",
+          "exit_hour_utc": "2024-03-22T14:00:00+00:00",
+          "duration_hours": 35,
+          "net_usdt": -7584.8849100213165,
+          "entry_notional_usdt": 129821.3270736
+        },
+        {
+          "entry_hour_utc": "2024-03-25T07:00:00+00:00",
+          "exit_hour_utc": "2024-04-02T03:00:00+00:00",
+          "duration_hours": 188,
+          "net_usdt": -4436.6798944668135,
+          "entry_notional_usdt": 114445.01562624001
+        },
+        {
+          "entry_hour_utc": "2024-04-08T09:00:00+00:00",
+          "exit_hour_utc": "2024-04-12T18:00:00+00:00",
+          "duration_hours": 105,
+          "net_usdt": -8426.658554686885,
+          "entry_notional_usdt": 106077.14018579999
+        },
+        {
+          "entry_hour_utc": "2024-04-28T05:00:00+00:00",
+          "exit_hour_utc": "2024-04-29T05:00:00+00:00",
+          "duration_hours": 24,
+          "net_usdt": -2838.2615985162765,
+          "entry_notional_usdt": 89022.57675515999
+        },
+        {
+          "entry_hour_utc": "2024-05-17T23:00:00+00:00",
+          "exit_hour_utc": "2024-06-11T08:00:00+00:00",
+          "duration_hours": 585,
+          "net_usdt": 11113.242263409098,
+          "entry_notional_usdt": 83867.1570774
+        },
+        {
+          "entry_hour_utc": "2024-06-16T19:00:00+00:00",
+          "exit_hour_utc": "2024-06-17T09:00:00+00:00",
+          "duration_hours": 14,
+          "net_usdt": -1790.2034986184956,
+          "entry_notional_usdt": 106966.1449512
+        },
+        {
+          "entry_hour_utc": "2024-06-20T08:00:00+00:00",
+          "exit_hour_utc": "2024-06-20T15:00:00+00:00",
+          "duration_hours": 7,
+          "net_usdt": -2617.174041441779,
+          "entry_notional_usdt": 103369.20290664
+        },
+        {
+          "entry_hour_utc": "2024-07-15T06:00:00+00:00",
+          "exit_hour_utc": "2024-07-25T02:00:00+00:00",
+          "duration_hours": 236,
+          "net_usdt": -3907.713698055257,
+          "entry_notional_usdt": 98658.58457135998
+        },
+        {
+          "entry_hour_utc": "2024-07-29T10:00:00+00:00",
+          "exit_hour_utc": "2024-07-29T17:00:00+00:00",
+          "duration_hours": 7,
+          "net_usdt": -3431.1497403976823,
+          "entry_notional_usdt": 90759.80353104
+        },
+        {
+          "entry_hour_utc": "2024-09-20T04:00:00+00:00",
+          "exit_hour_utc": "2024-10-01T21:00:00+00:00",
+          "duration_hours": 281,
+          "net_usdt": -2659.1090328181704,
+          "entry_notional_usdt": 85013.22624540002
+        },
+        {
+          "entry_hour_utc": "2024-10-14T06:00:00+00:00",
+          "exit_hour_utc": "2024-10-23T19:00:00+00:00",
+          "duration_hours": 229,
+          "net_usdt": -1630.3258654876204,
+          "entry_notional_usdt": 80240.819955
+        },
+        {
+          "entry_hour_utc": "2024-10-29T02:00:00+00:00",
+          "exit_hour_utc": "2024-11-01T00:00:00+00:00",
+          "duration_hours": 70,
+          "net_usdt": -2076.7945492006293,
+          "entry_notional_usdt": 76937.63294970001
+        },
+        {
+          "entry_hour_utc": "2024-11-06T08:00:00+00:00",
+          "exit_hour_utc": "2024-12-19T18:00:00+00:00",
+          "duration_hours": 1042,
+          "net_usdt": 22613.12983306195,
+          "entry_notional_usdt": 73360.67320080001
+        },
+        {
+          "entry_hour_utc": "2025-01-03T17:00:00+00:00",
+          "exit_hour_utc": "2025-01-07T20:00:00+00:00",
+          "duration_hours": 99,
+          "net_usdt": -7003.477101710137,
+          "entry_notional_usdt": 120364.37826204
+        },
+        {
+          "entry_hour_utc": "2025-01-17T17:00:00+00:00",
+          "exit_hour_utc": "2025-01-18T07:00:00+00:00",
+          "duration_hours": 14,
+          "net_usdt": -3981.466910659977,
+          "entry_notional_usdt": 106176.87842946
+        },
+        {
+          "entry_hour_utc": "2025-01-24T13:00:00+00:00",
+          "exit_hour_utc": "2025-01-24T22:00:00+00:00",
+          "duration_hours": 9,
+          "net_usdt": -2302.4518900688654,
+          "entry_notional_usdt": 98108.19951636
+        },
+        {
+          "entry_hour_utc": "2025-01-31T16:00:00+00:00",
+          "exit_hour_utc": "2025-02-01T04:00:00+00:00",
+          "duration_hours": 12,
+          "net_usdt": -3822.443763549926,
+          "entry_notional_usdt": 93451.43324934
+        },
+        {
+          "entry_hour_utc": "2025-04-23T03:00:00+00:00",
+          "exit_hour_utc": "2025-06-17T19:00:00+00:00",
+          "duration_hours": 1336,
+          "net_usdt": 33258.31298254388,
+          "entry_notional_usdt": 87540.91128131999
+        },
+        {
+          "entry_hour_utc": "2025-06-18T08:00:00+00:00",
+          "exit_hour_utc": "2025-06-18T11:00:00+00:00",
+          "duration_hours": 3,
+          "net_usdt": -2585.277725274062,
+          "entry_notional_usdt": 156098.71139958
+        },
+        {
+          "entry_hour_utc": "2025-06-19T11:00:00+00:00",
+          "exit_hour_utc": "2025-06-19T14:00:00+00:00",
+          "duration_hours": 3,
+          "net_usdt": -1927.1778201221352,
+          "entry_notional_usdt": 150857.38224335999
+        },
+        {
+          "entry_hour_utc": "2025-06-20T09:00:00+00:00",
+          "exit_hour_utc": "2025-06-20T17:00:00+00:00",
+          "duration_hours": 8,
+          "net_usdt": -4292.7413997043195,
+          "entry_notional_usdt": 146958.76867656002
+        },
+        {
+          "entry_hour_utc": "2025-06-30T02:00:00+00:00",
+          "exit_hour_utc": "2025-06-30T15:00:00+00:00",
+          "duration_hours": 13,
+          "net_usdt": -4165.661329205808,
+          "entry_notional_usdt": 138259.71921456
+        },
+        {
+          "entry_hour_utc": "2025-06-30T18:00:00+00:00",
+          "exit_hour_utc": "2025-07-01T11:00:00+00:00",
+          "duration_hours": 17,
+          "net_usdt": -1859.9153235692404,
+          "entry_notional_usdt": 129834.31167000001
+        },
+        {
+          "entry_hour_utc": "2025-07-02T17:00:00+00:00",
+          "exit_hour_utc": "2025-09-06T20:00:00+00:00",
+          "duration_hours": 1587,
+          "net_usdt": 81286.90516402942,
+          "entry_notional_usdt": 126657.64306331999
+        },
+        {
+          "entry_hour_utc": "2025-09-07T03:00:00+00:00",
+          "exit_hour_utc": "2025-09-22T03:00:00+00:00",
+          "duration_hours": 360,
+          "net_usdt": -1861.894390303259,
+          "entry_notional_usdt": 292471.26895728
+        },
+        {
+          "entry_hour_utc": "2025-10-01T17:00:00+00:00",
+          "exit_hour_utc": "2025-10-09T17:00:00+00:00",
+          "duration_hours": 192,
+          "net_usdt": -3972.3775610872667,
+          "entry_notional_usdt": 289328.92301376
+        },
+        {
+          "entry_hour_utc": "2025-10-27T01:00:00+00:00",
+          "exit_hour_utc": "2025-10-28T21:00:00+00:00",
+          "duration_hours": 44,
+          "net_usdt": -13391.756397466574,
+          "entry_notional_usdt": 281272.69769088004
+        },
+        {
+          "entry_hour_utc": "2025-12-04T05:00:00+00:00",
+          "exit_hour_utc": "2025-12-04T20:00:00+00:00",
+          "duration_hours": 15,
+          "net_usdt": -6259.45134490232,
+          "entry_notional_usdt": 255382.08300336
+        },
+        {
+          "entry_hour_utc": "2025-12-09T17:00:00+00:00",
+          "exit_hour_utc": "2025-12-12T19:00:00+00:00",
+          "duration_hours": 74,
+          "net_usdt": -21094.388517454467,
+          "entry_notional_usdt": 242700.12251843998
+        },
+        {
+          "entry_hour_utc": "2026-01-02T11:00:00+00:00",
+          "exit_hour_utc": "2026-01-20T10:00:00+00:00",
+          "duration_hours": 431,
+          "net_usdt": 1505.5261142191603,
+          "entry_notional_usdt": 200582.04658764
+        },
+        {
+          "entry_hour_utc": "2026-03-04T22:00:00+00:00",
+          "exit_hour_utc": "2026-03-05T17:00:00+00:00",
+          "duration_hours": 19,
+          "net_usdt": -6894.5538524668755,
+          "entry_notional_usdt": 204867.95669826
+        },
+        {
+          "entry_hour_utc": "2026-03-13T02:00:00+00:00",
+          "exit_hour_utc": "2026-03-14T14:00:00+00:00",
+          "duration_hours": 36,
+          "net_usdt": -4471.528983577361,
+          "entry_notional_usdt": 190900.81252799998
+        },
+        {
+          "entry_hour_utc": "2026-03-14T23:00:00+00:00",
+          "exit_hour_utc": "2026-03-22T03:00:00+00:00",
+          "duration_hours": 172,
+          "net_usdt": 1239.2853699313946,
+          "entry_notional_usdt": 181841.69846748
+        },
+        {
+          "entry_hour_utc": "2026-03-23T19:00:00+00:00",
+          "exit_hour_utc": "2026-03-26T11:00:00+00:00",
+          "duration_hours": 64,
+          "net_usdt": -7944.472954962375,
+          "entry_notional_usdt": 184354.69396608
+        },
+        {
+          "entry_hour_utc": "2026-04-01T06:00:00+00:00",
+          "exit_hour_utc": "2026-04-02T06:00:00+00:00",
+          "duration_hours": 24,
+          "net_usdt": -6013.404731779326,
+          "entry_notional_usdt": 168874.6751814
+        },
+        {
+          "entry_hour_utc": "2026-04-06T03:00:00+00:00",
+          "exit_hour_utc": "2026-04-07T17:00:00+00:00",
+          "duration_hours": 38,
+          "net_usdt": -3895.0725702847776,
+          "entry_notional_usdt": 156695.06714688
+        },
+        {
+          "entry_hour_utc": "2026-04-07T18:00:00+00:00",
+          "exit_hour_utc": "2026-04-07T19:00:00+00:00",
+          "duration_hours": 1,
+          "net_usdt": -1128.0732452411662,
+          "entry_notional_usdt": 148819.50184877997
+        },
+        {
+          "entry_hour_utc": "2026-04-07T20:00:00+00:00",
+          "exit_hour_utc": "2026-04-30T05:00:00+00:00",
+          "duration_hours": 537,
+          "net_usdt": 8655.12857128822,
+          "entry_notional_usdt": 146532.56265240003
+        },
+        {
+          "entry_hour_utc": "2026-05-01T03:00:00+00:00",
+          "exit_hour_utc": "2026-05-08T06:00:00+00:00",
+          "duration_hours": 171,
+          "net_usdt": 511.63556790802136,
+          "entry_notional_usdt": 164657.96040707998
+        },
+        {
+          "entry_hour_utc": "2026-05-08T18:00:00+00:00",
+          "exit_hour_utc": "2026-05-12T14:00:00+00:00",
+          "duration_hours": 92,
+          "net_usdt": -2685.887449690694,
+          "entry_notional_usdt": 165699.3912516
+        },
+        {
+          "entry_hour_utc": "2026-05-13T09:00:00+00:00",
+          "exit_hour_utc": "2026-05-13T14:00:00+00:00",
+          "duration_hours": 5,
+          "net_usdt": -3988.3682564303635,
+          "entry_notional_usdt": 160247.02319603998
+        },
+        {
+          "entry_hour_utc": "2026-07-03T12:00:00+00:00",
+          "exit_hour_utc": "2026-08-03T13:00:00+00:00",
+          "duration_hours": 745,
+          "net_usdt": 8129.549962886358,
+          "entry_notional_usdt": 153401.25371592
+        },
+        {
+          "entry_hour_utc": "2026-08-03T14:00:00+00:00",
+          "exit_hour_utc": "2026-09-30T23:00:00+00:00",
+          "duration_hours": 1402,
+          "net_usdt": 73645.5941106182,
+          "entry_notional_usdt": 170474.61250488
+        }
+      ],
+      "max_entry_notional_usdt": 292471.26895728,
+      "mark_low_maintenance_proxy_crossings": 0,
+      "year_end_equity_usdt": {
+        "2020": 5292.9583135698085,
+        "2021": 20491.48583678855,
+        "2022": 16284.98049804084,
+        "2023": 37871.353955499755,
+        "2024": 59140.7212485667,
+        "2025": 98765.45792006173,
+        "2026": 158130.8155724802
+      }
+    }
+  },
+  "independent_zero_deposit_comparison": {
+    "trading_net_usdt": 5155.106460728239,
+    "difference_from_freqtrade_native_usdt": -1138.24589352176
+  },
+  "limitations": [
+    "Freqtrade native backtest has no scheduled external monthly deposit option; annual deposit-adjusted account table is a separate Python replay driven by its verified trade intervals.",
+    "Binance market metadata capped 39 of 121 native entries to 100x; the target EasiCoin scenario is 150x and cannot be represented by this native Binance venue backtest.",
+    "Native Freqtrade's trade-level stoploss had to be disabled; using -1.0 produced 382 stoploss exits and 459 trades, unlike the requested Cross whole-account logic.",
+    "Native Freqtrade has no extra 0.02% adverse slippage; independent replay includes it.",
+    "Both runs use the same known Binance market history, not an independent EasiCoin history or untouched sizing holdout."
+  ]
+}

@@ -1,0 +1,57 @@
+{
+  "allocation_fraction": 0.0135,
+  "archive_sha256_matches_frozen_manifest": true,
+  "hourly_rows": 59160,
+  "nonzero_funding_hours": 7395,
+  "mark_hour_alignment": true,
+  "trade_and_mark_ohlc_ordering": true,
+  "prior_hour_signal_only": true,
+  "first_signal_utc": "2020-05-30T01:00:00+00:00",
+  "monthly_deposit_events_after_first_signal": 76,
+  "independent_account_replay_match": true,
+  "base": {
+    "status_code": 0,
+    "ending_usdt": 158130.8155724802,
+    "external_deposits_usdt": 22800.0,
+    "trading_net_usdt": 135230.8155724802,
+    "fees_usdt": 9191.759785118093,
+    "funding_usdt": -29563.032721862313,
+    "max_cash_flow_adjusted_dd_pct": 67.85209903794424,
+    "completed_trades": 121
+  },
+  "funding_at_mark_open": {
+    "status_code": 0,
+    "ending_usdt": 158130.8420415882,
+    "external_deposits_usdt": 22800.0,
+    "trading_net_usdt": 135230.8420415882,
+    "fees_usdt": 9191.782280205303,
+    "funding_usdt": -29561.60265968715,
+    "max_cash_flow_adjusted_dd_pct": 67.85240868564256,
+    "completed_trades": 121
+  },
+  "one_extra_hour_execution_delay": {
+    "status_code": 0,
+    "ending_usdt": 229424.20752058018,
+    "external_deposits_usdt": 22800.0,
+    "trading_net_usdt": 206524.20752058018,
+    "fees_usdt": 12691.233165412805,
+    "funding_usdt": -39668.927489407535,
+    "max_cash_flow_adjusted_dd_pct": 64.6459496303727,
+    "completed_trades": 121
+  },
+  "higher_fee_and_slippage": {
+    "status_code": 0,
+    "ending_usdt": 132464.8895681562,
+    "external_deposits_usdt": 22800.0,
+    "trading_net_usdt": 109564.88956815621,
+    "fees_usdt": 11377.624398856977,
+    "funding_usdt": -26839.923985037658,
+    "max_cash_flow_adjusted_dd_pct": 69.46167382477333,
+    "completed_trades": 121
+  },
+  "limitations": [
+    "Same Binance price path was used for sizing selection; no untouched sizing holdout",
+    "EasiCoin historical marks, fills, risk tiers and account liquidation records unavailable",
+    "Hourly mark lows are a proxy, not actual EasiCoin liquidation events"
+  ]
+}
